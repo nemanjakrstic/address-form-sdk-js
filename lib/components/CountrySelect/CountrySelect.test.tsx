@@ -299,4 +299,40 @@ describe("<CountrySelect>", () => {
     expect(input).toHaveAttribute("placeholder", "Choose a country");
     expect(input).toHaveClass("custom-country-select");
   });
+
+  it("auto-selects country when exact match found via autofill in single mode", () => {
+    const mockOnChange = vi.fn();
+    render(<CountrySelect value={null} onChange={mockOnChange} />);
+
+    const input = screen.getByTestId("country-input");
+
+    // Simulate browser autofill by changing value without focus
+    fireEvent.change(input, { target: { value: "Canada" } });
+
+    expect(mockOnChange).toHaveBeenCalledWith("CA");
+  });
+
+  it("auto-selects country by code when exact match found via autofill in single mode", () => {
+    const mockOnChange = vi.fn();
+    render(<CountrySelect value={null} onChange={mockOnChange} />);
+
+    const input = screen.getByTestId("country-input");
+
+    // Simulate browser autofill with country code
+    fireEvent.change(input, { target: { value: "US" } });
+
+    expect(mockOnChange).toHaveBeenCalledWith("US");
+  });
+
+  it("does not auto-select when multiple matches found via autofill", () => {
+    const mockOnChange = vi.fn();
+    render(<CountrySelect value={null} onChange={mockOnChange} />);
+
+    const input = screen.getByTestId("country-input");
+
+    // Simulate autofill with partial match that could match multiple countries
+    fireEvent.change(input, { target: { value: "United" } });
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+  });
 });

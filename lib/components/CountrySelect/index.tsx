@@ -36,6 +36,7 @@ export const CountrySelect = ({
 }: CountrySelectProps) => {
   const [query, setQuery] = useState("");
   const [allowedCountries] = useState(defaultAllowedCountries);
+  const [isFocused, setIsFocused] = useState(false);
 
   const countryOptions = useMemo(() => {
     return allowedCountries ? countries.filter((country) => allowedCountries.includes(country.code)) : countries;
@@ -73,7 +74,20 @@ export const CountrySelect = ({
       handleChange(null);
     }
 
-    setQuery(event.target.value);
+    if (isFocused) {
+      // User is actively typing - show filtered results in dropdown
+      setQuery(event.target.value);
+    } else {
+      // Input changed without focus - likely browser autofill or programmatic change
+      // Try to match exact country name or code and auto-select if found
+      const countries = countryOptions.filter(
+        (country) => country.name === event.target.value || country.code === event.target.value,
+      );
+
+      if (countries.length === 1) {
+        handleChange(countries[0]);
+      }
+    }
   };
 
   return (
@@ -90,10 +104,17 @@ export const CountrySelect = ({
         aria-label="Country"
         value={displayValue}
         onChange={handleInputChange}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
         {...inputProps}
       />
 
-      <ComboboxOptions anchor="bottom" className={options} hidden={filteredCountries.length === 0} modal={false}>
+      <ComboboxOptions
+        anchor="bottom"
+        className={options}
+        hidden={filteredCountries.length === 0 || !isFocused}
+        modal={false}
+      >
         {filteredCountries.map((country) => (
           <ComboboxOption
             key={country.code}
