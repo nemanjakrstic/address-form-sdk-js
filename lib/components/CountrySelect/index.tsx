@@ -5,6 +5,7 @@ import { countries, Country } from "../../data/countries";
 import { Input, InputProps } from "../Input";
 import { option, options } from "../Typeahead/styles.css";
 import * as styles from "./styles.css";
+import { matchSorter } from "match-sorter";
 
 interface BaseCountrySelectProps {
   id?: string;
@@ -80,13 +81,11 @@ export const CountrySelect = ({
     } else {
       // Input changed without focus - likely browser autofill or programmatic change
       // Try to match exact country name or code and auto-select if found
-      const countries = countryOptions.filter(
-        (country) => country.name === event.target.value || country.code === event.target.value,
-      );
+      const countries = matchSorter(countryOptions, event.target.value, { keys: ["name", "code", "alternativeNames"] });
 
-      if (countries.length === 1) {
-        handleChange(countries[0]);
-      }
+      // if (countries.length === 1) {
+      handleChange(countries[0]);
+      // }
     }
   };
 
