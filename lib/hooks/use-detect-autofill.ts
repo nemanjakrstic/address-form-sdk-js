@@ -1,46 +1,23 @@
 import { RefObject, useEffect, useState } from "react";
-import * as styles from "./use-detect-autofill.css";
-import { useDebounce } from "../utils/debounce";
+import { detectAutofill } from "../utils/detect-autofill";
 
 type AutofillValues = Record<string, string>;
+type AutofillState = "pending" | "started" | "updated" | "completed";
 
 export const useDetectAutofill = (formRef: RefObject<HTMLFormElement | null>) => {
-  const [values, setValues] = useState<[boolean, AutofillValues]>([false, {}]);
-  const debouncedValues = useDebounce(values, 100);
+  const [state, setState] = useState<AutofillState>("pending");
+  const [values, setValues] = useState<AutofillValues>({});
 
   useEffect(() => {
     if (!formRef.current) {
       return;
     }
 
-    const form = formRef.current;
-
-    // Handle autofill detection via CSS animation
-    const handleAutofillAnimationStart = (e: AnimationEvent) => {
-      if (e.animationName === styles.animation && e.target === form) {
-        setValues([true, getFormValues(form)]);
-      }
-    };
-
-    form.classList.add(styles.form);
-    form.addEventListener("animationstart", handleAutofillAnimationStart);
-
-    return () => {
-      form.classList.remove(styles.form);
-      form.removeEventListener("animationstart", handleAutofillAnimationStart);
-    };
+    return detectAutofill(formRef.current, (newState, newValues) => {
+      setState(newState);
+      setValues(newValues);
+    });
   }, [formRef]);
 
-  return debouncedValues;
-};
-
-const getFormValues = (form: HTMLFormElement) => {
-  const formData = new FormData(form);
-  const values: AutofillValues = {};
-
-  for (const [key, value] of formData.entries()) {
-    values[key] = String(value);
-  }
-
-  return values;
+  return [state, values] as const;
 };

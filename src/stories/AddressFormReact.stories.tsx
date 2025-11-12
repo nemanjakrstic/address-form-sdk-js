@@ -405,13 +405,13 @@ export const Default: Story = {
               placeholder={args.postalCodePlaceholder}
               className={args.postalCodeClassName}
             />
-            <input
+            {/* <input
               data-type="address-form"
               name="country"
               aria-label={args.countryLabel}
               placeholder={args.countryPlaceholder}
               className={args.countryClassName}
-            />
+            /> */}
             <Flex direction="row">
               <button data-type="address-form" type="submit">
                 Submit

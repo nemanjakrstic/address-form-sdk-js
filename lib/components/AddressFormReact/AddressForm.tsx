@@ -73,15 +73,15 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
 }) => {
   const context = useAddressFormContext();
   const formRef = useRef<HTMLFormElement>(null);
-  const [isAutofill, autofillValues] = useDetectAutofill(formRef);
+  const [autofillState, autofillValues] = useDetectAutofill(formRef);
 
   useEffect(() => {
-    if (isAutofill) {
-      console.log("<AUTOFILL>", Date.now());
-      console.log(autofillValues);
+    if (autofillState === "completed") {
+      console.log(`<AUTOFILL STATE: ${autofillState}>`, Date.now());
+      console.log("<AUTOFILL", autofillValues);
       console.log("</AUTOFILL>");
     }
-  }, [isAutofill, autofillValues]);
+  }, [autofillState, autofillValues]);
 
   const handleSubmit: FormEventHandler = (event) => {
     if (preventDefaultOnSubmit) {

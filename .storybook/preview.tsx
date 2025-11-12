@@ -1,6 +1,7 @@
 import type { Preview } from "@storybook/react";
 import { AmazonLocationProvider } from "@/components/AmazonLocationProvider";
 import "maplibre-gl/dist/maplibre-gl.css";
+import "../lib/styles/index.css";
 
 const preview: Preview = {
   parameters: {
