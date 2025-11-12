@@ -1,6 +1,6 @@
 import { AutocompleteFilterPlaceType } from "@aws-sdk/client-geo-places";
 import clsx from "clsx";
-import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode } from "react";
+import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode, useEffect, useRef } from "react";
 import { AddressFormData } from "../AddressForm";
 import { AddressFormAddressField, AddressFormAddressFieldProps } from "./AddressFormAddressField";
 import { useAddressFormContext } from "./AddressFormContext";
@@ -10,6 +10,7 @@ import { AddressFormMap, AddressFormMapProps } from "./AddressFormMap";
 import { AddressFormProvider } from "./AddressFormProvider";
 import { AddressFormTextField, AddressFormTextFieldProps } from "./AddressFormTextField";
 import * as styles from "./styles.css";
+import { useDetectAutofill } from "../../hooks/use-detect-autofill";
 
 export interface AddressFormProps extends AddressFormContentProps {
   apiKey: string;
@@ -71,6 +72,16 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   ...rest
 }) => {
   const context = useAddressFormContext();
+  const formRef = useRef<HTMLFormElement>(null);
+  const [isAutofill, autofillValues] = useDetectAutofill(formRef);
+
+  useEffect(() => {
+    if (isAutofill) {
+      console.log("<AUTOFILL>", Date.now());
+      console.log(autofillValues);
+      console.log("</AUTOFILL>");
+    }
+  }, [isAutofill, autofillValues]);
 
   const handleSubmit: FormEventHandler = (event) => {
     if (preventDefaultOnSubmit) {
@@ -85,7 +96,13 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   };
 
   return (
-    <form className={clsx(styles.root, className)} {...rest} onSubmit={handleSubmit} onReset={handleReset}>
+    <form
+      ref={formRef}
+      className={clsx(styles.root, className)}
+      {...rest}
+      onSubmit={handleSubmit}
+      onReset={handleReset}
+    >
       <AddressFormFields>{children}</AddressFormFields>
     </form>
   );
