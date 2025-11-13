@@ -1,4 +1,4 @@
-import { memo, useId } from "react";
+import { memo, useEffect, useId } from "react";
 import { getIncludeCountriesFilter } from "../../utils/country-filter";
 import { FormField } from "../FormField";
 import { Typeahead, TypeaheadOutput } from "../Typeahead";
@@ -20,6 +20,10 @@ export const AddressFormAddressField = memo(
     const context = useAddressFormContext();
     const validatedApiName = validateApiNameProp(apiName);
     const id = useId();
+
+    useEffect(() => {
+      context.setTypeaheadApiName(validatedApiName);
+    }, [validatedApiName, context]);
 
     const handleTypeaheadSelect = (value: TypeaheadOutput) => {
       context.setData({
@@ -48,7 +52,6 @@ export const AddressFormAddressField = memo(
           className={className}
           showCurrentLocation={showCurrentLocation}
           apiName={validatedApiName}
-          // enabled={!context.isAutofill}
           skipNextQuery={context.isAutofill}
           apiInput={{
             PoliticalView: context.politicalView,

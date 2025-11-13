@@ -1,8 +1,9 @@
 import { GeoPlacesClient } from "@aws-sdk/client-geo-places";
+import { QueryClient, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useEffectEvent } from "react";
 import useAmazonLocationContext from "../../hooks/use-amazon-location-context";
-import { autocomplete, getPlace, suggest } from "../../utils/api";
 import { AutofillValues, detectAutofill } from "../../utils/detect-autofill";
+import { autocompleteQuery, getPlaceQuery, suggestQuery } from "../../utils/queries";
 import { TypeaheadAPIName } from "../Typeahead/use-typeahead-query";
 import { useAddressFormContext } from "./AddressFormContext";
 import type { Field } from "./AddressFormFields";
@@ -13,13 +14,18 @@ interface AddressFormAutofillHandlerProps {
 
 export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerProps) => {
   const { client } = useAmazonLocationContext();
-  const { mapViewState, setMapViewState, setData, setIsAutofill } = useAddressFormContext();
+  const { mapViewState, setMapViewState, setData, setIsAutofill, typeaheadApiName, language } = useAddressFormContext();
+  const queryClient = useQueryClient();
 
   const handleAutofill = useEffectEvent(async (values: AutofillValues) => {
+    if (typeaheadApiName === null) {
+      return;
+    }
+
     setIsAutofill(true);
     const query = buildQuery(values);
 
-    const placeId = await getPlaceId(client, query, "suggest", [
+    const placeId = await getPlaceId(queryClient, client, query, typeaheadApiName, language, [
       mapViewState?.longitude ?? 0,
       mapViewState?.latitude ?? 0,
     ]);
@@ -29,7 +35,12 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
       return;
     }
 
-    const placeResponse = await getPlace(client, { PlaceId: placeId });
+    const placeResponse = await queryClient.ensureQueryData(
+      getPlaceQuery(client, {
+        PlaceId: placeId,
+        Language: language,
+      }),
+    );
 
     if (placeResponse.Position?.length === 2) {
       const [longitude, latitude] = placeResponse.Position;
@@ -43,6 +54,10 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
     });
 
     setIsAutofill(false);
+
+    // The user filled an address, we can clear the cache without refetching
+    queryClient.removeQueries({ queryKey: ["typeahead"] });
+    queryClient.removeQueries({ queryKey: ["getPlace"] });
   });
 
   useEffect(() => {
@@ -75,26 +90,34 @@ const getValue = (values: AutofillValues, field: Field) => {
 };
 
 const getPlaceId = async (
+  queryClient: QueryClient,
   client: GeoPlacesClient,
   query: string,
   apiName: TypeaheadAPIName,
-  biasPosition: [number, number],
+  language?: string,
+  biasPosition?: [number, number],
 ) => {
   if (apiName === "autocomplete") {
-    const autocompleteResponse = await autocomplete(client, {
-      QueryText: query,
-      MaxResults: 1,
-    });
+    const autocompleteResponse = await queryClient.ensureQueryData(
+      autocompleteQuery(client, {
+        QueryText: query,
+        MaxResults: 1,
+        Language: language,
+      }),
+    );
 
     return autocompleteResponse.ResultItems?.[0].PlaceId;
   }
 
   if (apiName === "suggest") {
-    const suggestResponse = await suggest(client, {
-      QueryText: query,
-      MaxResults: 1,
-      BiasPosition: biasPosition,
-    });
+    const suggestResponse = await queryClient.ensureQueryData(
+      suggestQuery(client, {
+        QueryText: query,
+        MaxResults: 1,
+        BiasPosition: biasPosition,
+        Language: language,
+      }),
+    );
 
     return suggestResponse.ResultItems?.[0].Place?.PlaceId;
   }
