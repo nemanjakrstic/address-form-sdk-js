@@ -16,15 +16,3 @@
 .aws-address-form.aws-flex-row.aws-flex-1 > * {
   flex: 1;
 }
-
-@keyframes onAutofillStart {
-  from {
-  }
-  to {
-  }
-}
-
-input:-webkit-autofill {
-  animation-name: onAutofillStart;
-  animation-duration: 0.001s;
-}

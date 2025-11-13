@@ -1,3 +1,5 @@
+import * as styles from "./detect-autofill.css";
+
 export type AutofillValues = Record<string, string>;
 
 export const detectAutofill = (form: HTMLFormElement, callback: (values: AutofillValues) => void) => {
@@ -42,7 +44,7 @@ export const detectAutofill = (form: HTMLFormElement, callback: (values: Autofil
   };
 
   const handleAnimationStart = (e: AnimationEvent) => {
-    if (e.animationName === "onAutofillStart" && state !== "selected") {
+    if (e.animationName === styles.animation && state !== "selected") {
       state = "active";
       detachAutofillFields();
       attachAutofillFields();
@@ -61,10 +63,13 @@ export const detectAutofill = (form: HTMLFormElement, callback: (values: Autofil
     }
   };
 
+  form.classList.add(styles.form);
   form.addEventListener("animationstart", handleAnimationStart);
 
   return () => {
+    form.classList.remove(styles.form);
     form.removeEventListener("animationstart", handleAnimationStart);
+
     detachAutofillFields();
     state = "none";
   };
