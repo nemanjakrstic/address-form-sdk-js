@@ -30,7 +30,7 @@ export interface TypeaheadProps {
   onSelect: (value: TypeaheadOutput) => void;
   showCurrentLocation?: boolean;
   debounce?: number;
-  enabled?: boolean;
+  skipNextQuery?: boolean;
 }
 
 export const Typeahead = ({ apiName, ...props }: TypeaheadProps) => {
@@ -49,7 +49,7 @@ const APITypeahead = ({
   onSelect,
   showCurrentLocation = true,
   debounce = 300,
-  enabled = true,
+  skipNextQuery,
 }: TypeaheadProps & { apiName: TypeaheadAPIName }) => {
   const debouncedValue = useDebounce(value, debounce);
   const { client } = useAmazonLocationContext();
@@ -57,11 +57,17 @@ const APITypeahead = ({
   const isValid = debouncedValue.length >= 2;
   const skipNextQueryRef = useRef(false);
 
+  useEffect(() => {
+    if (skipNextQuery !== undefined) {
+      skipNextQueryRef.current = skipNextQuery;
+    }
+  }, [skipNextQueryRef, skipNextQuery]);
+
   const { data = [], isLoading } = useTypeaheadQuery({
     client,
     apiName,
     apiInput: { QueryText: debouncedValue, MaxResults: 5, ...apiInput },
-    enabled: enabled && isValid && !skipNextQueryRef.current,
+    enabled: isValid && !skipNextQueryRef.current,
   });
 
   const handleAddressSelect = async (address: TypeaheadResultItem | null) => {
@@ -137,7 +143,7 @@ const APITypeahead = ({
           autoComplete="off"
         />
 
-        {isValid && enabled && (
+        {isValid && (
           <ComboboxOptions
             transition
             anchor="bottom start"

@@ -25,6 +25,7 @@ export const AddressFormProvider: FunctionComponent<AddressFormProps> = ({
 }) => {
   const [data, setData] = useState<AddressFormData>({});
   const [isAutofill, setIsAutofill] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [mapViewState, setMapViewState] = useState<MapViewState>({ longitude: 0, latitude: 0, zoom: 1 });
 
   const context = useMemo<AddressFormContextType>(
@@ -43,19 +44,21 @@ export const AddressFormProvider: FunctionComponent<AddressFormProps> = ({
       placeTypes,
       isAutofill,
       setIsAutofill,
+      isLoading,
+      setIsLoading,
     }),
     [
-      allowedCountries,
       apiKey,
-      data,
-      language,
-      mapViewState,
-      placeTypes,
-      politicalView,
       region,
+      data,
+      mapViewState,
+      language,
+      politicalView,
       showCurrentCountryResultsOnly,
+      allowedCountries,
+      placeTypes,
       isAutofill,
-      setIsAutofill,
+      isLoading,
     ],
   );
 

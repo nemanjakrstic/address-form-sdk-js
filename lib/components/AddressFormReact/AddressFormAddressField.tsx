@@ -48,7 +48,8 @@ export const AddressFormAddressField = memo(
           className={className}
           showCurrentLocation={showCurrentLocation}
           apiName={validatedApiName}
-          enabled={!context.isAutofill}
+          // enabled={!context.isAutofill}
+          skipNextQuery={context.isAutofill}
           apiInput={{
             PoliticalView: context.politicalView,
             Language: context.language,

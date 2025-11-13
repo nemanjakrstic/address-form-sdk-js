@@ -23,6 +23,8 @@ export interface AddressFormContextType {
   placeTypes?: AutocompleteFilterPlaceType[];
   isAutofill: boolean;
   setIsAutofill: (isAutofill: boolean) => void;
+  isLoading: boolean;
+  setIsLoading: (isLoading: boolean) => void;
 }
 
 export const AddressFormContext = createContext<AddressFormContextType | undefined>(undefined);

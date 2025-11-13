@@ -1,12 +1,11 @@
-import { useRef, useEffect } from "react";
-import { useDetectAutofill } from "../../hooks/use-detect-autofill";
-import { AutofillValues } from "../../utils/detect-autofill";
-import type { Field } from "./AddressFormFields";
-import { autocomplete, getPlace, suggest } from "../../utils/api";
-import useAmazonLocationContext from "../../hooks/use-amazon-location-context";
-import { TypeaheadAPIName } from "../Typeahead/use-typeahead-query";
 import { GeoPlacesClient } from "@aws-sdk/client-geo-places";
+import { useEffect, useEffectEvent } from "react";
+import useAmazonLocationContext from "../../hooks/use-amazon-location-context";
+import { autocomplete, getPlace, suggest } from "../../utils/api";
+import { AutofillValues, detectAutofill } from "../../utils/detect-autofill";
+import { TypeaheadAPIName } from "../Typeahead/use-typeahead-query";
 import { useAddressFormContext } from "./AddressFormContext";
+import type { Field } from "./AddressFormFields";
 
 interface AddressFormAutofillHandlerProps {
   form: HTMLFormElement;
@@ -14,14 +13,10 @@ interface AddressFormAutofillHandlerProps {
 
 export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerProps) => {
   const { client } = useAmazonLocationContext();
-  const { mapViewState, setMapViewState, setData, setIsAutofill } = useAddressFormContext();
-  const formRef = useRef<HTMLFormElement>(form);
+  const { mapViewState, setMapViewState, setData, setIsAutofill, setIsLoading } = useAddressFormContext();
 
-  useEffect(() => {
-    formRef.current = form;
-  }, [form]);
-
-  useDetectAutofill(formRef, async (values: AutofillValues) => {
+  const handleAutofill = useEffectEvent(async (values: AutofillValues) => {
+    setIsLoading(true);
     setIsAutofill(true);
     const query = buildQuery(values);
 
@@ -31,6 +26,8 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
     ]);
 
     if (!placeId) {
+      setIsLoading(false);
+      setIsAutofill(false);
       return;
     }
 
@@ -42,11 +39,18 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
     }
 
     setData({
-      country: placeResponse.Address?.Country?.Code2,
+      country: placeResponse.Address?.Country?.Code2, // This override is required since user might have the country name instead of the code in the saved autofill
       originalPosition: placeResponse.Position?.join(","),
       addressDetails: placeResponse.Address,
     });
+
+    setIsLoading(false);
+    setIsAutofill(false);
   });
+
+  useEffect(() => {
+    return detectAutofill(form, handleAutofill);
+  }, [form, handleAutofill]);
 
   return null;
 };

@@ -1,6 +1,15 @@
 import { AutocompleteFilterPlaceType } from "@aws-sdk/client-geo-places";
 import clsx from "clsx";
-import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode, useRef } from "react";
+import {
+  ComponentProps,
+  FormEvent,
+  FormEventHandler,
+  FunctionComponent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { AddressFormData } from "../AddressForm";
 import { AddressFormAddressField, AddressFormAddressFieldProps } from "./AddressFormAddressField";
 import { AddressFormAutofillHandler } from "./AddressFormAutofillHandler";
@@ -71,8 +80,13 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   preventDefaultOnSubmit = true,
   ...rest
 }) => {
-  const { data, resetData } = useAddressFormContext();
+  const { data, resetData, isLoading } = useAddressFormContext();
   const formRef = useRef<HTMLFormElement>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleSubmit: FormEventHandler = (event) => {
     if (preventDefaultOnSubmit) {
@@ -84,8 +98,11 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
 
   return (
     <form ref={formRef} className={clsx(styles.root, className)} {...rest} onSubmit={handleSubmit} onReset={resetData}>
-      {formRef.current ? <AddressFormAutofillHandler form={formRef.current} /> : null}
-      <AddressFormFields>{children}</AddressFormFields>
+      {isMounted && formRef.current && <AddressFormAutofillHandler form={formRef.current} />}
+
+      <fieldset className={styles.fieldset} disabled={isLoading}>
+        <AddressFormFields>{children}</AddressFormFields>
+      </fieldset>
     </form>
   );
 };
