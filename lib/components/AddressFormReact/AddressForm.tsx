@@ -1,6 +1,6 @@
 import { AutocompleteFilterPlaceType } from "@aws-sdk/client-geo-places";
 import clsx from "clsx";
-import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode, useEffect, useRef } from "react";
+import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode, useRef } from "react";
 import { AddressFormData } from "../AddressForm";
 import { AddressFormAddressField, AddressFormAddressFieldProps } from "./AddressFormAddressField";
 import { useAddressFormContext } from "./AddressFormContext";
@@ -71,38 +71,24 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   preventDefaultOnSubmit = true,
   ...rest
 }) => {
-  const context = useAddressFormContext();
+  const { data, resetData, setIsAutofill } = useAddressFormContext();
   const formRef = useRef<HTMLFormElement>(null);
-  const [autofillState, autofillValues] = useDetectAutofill(formRef);
 
-  useEffect(() => {
-    if (autofillState === "completed") {
-      console.log(`<AUTOFILL STATE: ${autofillState}>`, Date.now());
-      console.log("<AUTOFILL", autofillValues);
-      console.log("</AUTOFILL>");
-    }
-  }, [autofillState, autofillValues]);
+  useDetectAutofill(formRef, (values) => {
+    setIsAutofill(true);
+    console.log("debug AddressForm autofill values", values);
+  });
 
   const handleSubmit: FormEventHandler = (event) => {
     if (preventDefaultOnSubmit) {
       event.preventDefault();
     }
 
-    onSubmit?.({ ...event, data: context.data });
-  };
-
-  const handleReset = () => {
-    context.resetData?.();
+    onSubmit?.({ ...event, data: data });
   };
 
   return (
-    <form
-      ref={formRef}
-      className={clsx(styles.root, className)}
-      {...rest}
-      onSubmit={handleSubmit}
-      onReset={handleReset}
-    >
+    <form ref={formRef} className={clsx(styles.root, className)} {...rest} onSubmit={handleSubmit} onReset={resetData}>
       <AddressFormFields>{children}</AddressFormFields>
     </form>
   );

@@ -1,23 +1,18 @@
-import { RefObject, useEffect, useState } from "react";
-import { detectAutofill } from "../utils/detect-autofill";
+import { RefObject, useEffect, useRef } from "react";
+import { AutofillValues, detectAutofill } from "../utils/detect-autofill";
 
-type AutofillValues = Record<string, string>;
-type AutofillState = "pending" | "started" | "updated" | "completed";
-
-export const useDetectAutofill = (formRef: RefObject<HTMLFormElement | null>) => {
-  const [state, setState] = useState<AutofillState>("pending");
-  const [values, setValues] = useState<AutofillValues>({});
+export const useDetectAutofill = (
+  formRef: RefObject<HTMLFormElement | null>,
+  callback: (values: AutofillValues) => void,
+) => {
+  const callbackRef = useRef(callback);
+  callbackRef.current = callback;
 
   useEffect(() => {
     if (!formRef.current) {
       return;
     }
 
-    return detectAutofill(formRef.current, (newState, newValues) => {
-      setState(newState);
-      setValues(newValues);
-    });
-  }, [formRef]);
-
-  return [state, values] as const;
+    return detectAutofill(formRef.current, callbackRef.current);
+  }, [formRef, callbackRef]);
 };

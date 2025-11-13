@@ -21,6 +21,8 @@ export interface AddressFormContextType {
   showCurrentCountryResultsOnly?: boolean;
   allowedCountries?: string[];
   placeTypes?: AutocompleteFilterPlaceType[];
+  isAutofill: boolean;
+  setIsAutofill: (isAutofill: boolean) => void;
 }
 
 export const AddressFormContext = createContext<AddressFormContextType | undefined>(undefined);
