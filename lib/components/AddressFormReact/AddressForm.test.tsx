@@ -10,6 +10,8 @@ const mockContextValue: AddressFormContextType = {
   data: {},
   setData: vi.fn(),
   setMapViewState: vi.fn(),
+  isAutofill: false,
+  setIsAutofill: vi.fn(),
 };
 
 const renderWithContext = (ui: React.ReactElement) => {

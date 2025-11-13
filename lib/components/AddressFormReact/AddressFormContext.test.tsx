@@ -23,6 +23,8 @@ describe("AddressFormContext", () => {
       data: { city: "Seattle" },
       setData: vi.fn(),
       setMapViewState: vi.fn(),
+      isAutofill: false,
+      setIsAutofill: vi.fn(),
     };
 
     let contextValue: AddressFormContextType | undefined;

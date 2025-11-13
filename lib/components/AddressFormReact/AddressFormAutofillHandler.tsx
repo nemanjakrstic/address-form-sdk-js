@@ -13,10 +13,9 @@ interface AddressFormAutofillHandlerProps {
 
 export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerProps) => {
   const { client } = useAmazonLocationContext();
-  const { mapViewState, setMapViewState, setData, setIsAutofill, setIsLoading } = useAddressFormContext();
+  const { mapViewState, setMapViewState, setData, setIsAutofill } = useAddressFormContext();
 
   const handleAutofill = useEffectEvent(async (values: AutofillValues) => {
-    setIsLoading(true);
     setIsAutofill(true);
     const query = buildQuery(values);
 
@@ -26,7 +25,6 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
     ]);
 
     if (!placeId) {
-      setIsLoading(false);
       setIsAutofill(false);
       return;
     }
@@ -44,7 +42,6 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
       addressDetails: placeResponse.Address,
     });
 
-    setIsLoading(false);
     setIsAutofill(false);
   });
 

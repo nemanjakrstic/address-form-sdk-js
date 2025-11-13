@@ -27,6 +27,8 @@ const mockContextValue: AddressFormContextType = {
   data: { city: "Seattle" },
   setData: vi.fn(),
   setMapViewState: vi.fn(),
+  isAutofill: false,
+  setIsAutofill: vi.fn(),
 };
 
 describe("AddressFormMap", () => {

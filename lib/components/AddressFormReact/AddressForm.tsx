@@ -80,7 +80,7 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   preventDefaultOnSubmit = true,
   ...rest
 }) => {
-  const { data, resetData, isLoading } = useAddressFormContext();
+  const { data, resetData } = useAddressFormContext();
   const formRef = useRef<HTMLFormElement>(null);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -99,10 +99,7 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   return (
     <form ref={formRef} className={clsx(styles.root, className)} {...rest} onSubmit={handleSubmit} onReset={resetData}>
       {isMounted && formRef.current && <AddressFormAutofillHandler form={formRef.current} />}
-
-      <fieldset className={styles.fieldset} disabled={isLoading}>
-        <AddressFormFields>{children}</AddressFormFields>
-      </fieldset>
+      <AddressFormFields>{children}</AddressFormFields>
     </form>
   );
 };
