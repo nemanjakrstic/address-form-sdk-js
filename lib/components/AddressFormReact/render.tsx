@@ -5,6 +5,7 @@ import { AddressFormData } from "../AddressForm";
 import { AmazonLocationProvider } from "../AmazonLocationProvider";
 import { ComponentInjector } from "../ComponentInjector";
 import { AddressFormAddressField } from "./AddressFormAddressField";
+import { AddressFormAutofillHandler } from "./AddressFormAutofillHandler";
 import { AddressFormCountryField } from "./AddressFormCountryField";
 import { Field } from "./AddressFormFields";
 import { AddressFormProvider } from "./AddressFormProvider";
@@ -59,6 +60,8 @@ export const render = ({ root: selector, ...formProps }: RenderParams) => {
           onSubmit={formProps.onSubmit}
           preventDefaultOnSubmit={formProps.preventDefaultOnSubmit}
         />
+
+        <AddressFormAutofillHandler form={form} />
 
         <ComponentInjector
           selector={selector}

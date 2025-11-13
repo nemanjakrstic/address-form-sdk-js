@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { ComponentProps, FormEvent, FormEventHandler, FunctionComponent, ReactNode, useRef } from "react";
 import { AddressFormData } from "../AddressForm";
 import { AddressFormAddressField, AddressFormAddressFieldProps } from "./AddressFormAddressField";
+import { AddressFormAutofillHandler } from "./AddressFormAutofillHandler";
 import { useAddressFormContext } from "./AddressFormContext";
 import { AddressFormCountryField, AddressFormCountryFieldProps } from "./AddressFormCountryField";
 import { AddressFormFields } from "./AddressFormFields";
@@ -10,7 +11,6 @@ import { AddressFormMap, AddressFormMapProps } from "./AddressFormMap";
 import { AddressFormProvider } from "./AddressFormProvider";
 import { AddressFormTextField, AddressFormTextFieldProps } from "./AddressFormTextField";
 import * as styles from "./styles.css";
-import { useDetectAutofill } from "../../hooks/use-detect-autofill";
 
 export interface AddressFormProps extends AddressFormContentProps {
   apiKey: string;
@@ -71,13 +71,8 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
   preventDefaultOnSubmit = true,
   ...rest
 }) => {
-  const { data, resetData, setIsAutofill } = useAddressFormContext();
+  const { data, resetData } = useAddressFormContext();
   const formRef = useRef<HTMLFormElement>(null);
-
-  useDetectAutofill(formRef, (values) => {
-    setIsAutofill(true);
-    console.log("debug AddressForm autofill values", values);
-  });
 
   const handleSubmit: FormEventHandler = (event) => {
     if (preventDefaultOnSubmit) {
@@ -89,6 +84,7 @@ const AddressFormContent: FunctionComponent<AddressFormContentProps> = ({
 
   return (
     <form ref={formRef} className={clsx(styles.root, className)} {...rest} onSubmit={handleSubmit} onReset={resetData}>
+      {formRef.current ? <AddressFormAutofillHandler form={formRef.current} /> : null}
       <AddressFormFields>{children}</AddressFormFields>
     </form>
   );
