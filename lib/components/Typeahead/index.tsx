@@ -2,7 +2,7 @@ import { Address } from "@aws-sdk/client-geo-places";
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import useAmazonLocationContext from "../../hooks/use-amazon-location-context.ts";
 import { useDebounce } from "../../utils/debounce.ts";
 import { getPlaceQuery } from "../../utils/queries.ts";
@@ -100,6 +100,13 @@ const APITypeahead = ({
     queryClient.removeQueries({ queryKey: ["getPlace"] });
   };
 
+  useEffect(() => {
+    if (value.length > 1) {
+      onChange(value.trimStart());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Removed: `onChange`
+  }, [value]);
+
   const handleCurrentLocation = (address: TypeaheadOutput) => {
     skipNextQueryRef.current = true;
     onChange(address.addressLineOneField ?? "");
@@ -108,7 +115,14 @@ const APITypeahead = ({
 
   return (
     <div className={clsx(className, base)}>
-      <Combobox onChange={handleAddressSelect}>
+      <Combobox
+        onChange={handleAddressSelect}
+        onClose={() => {
+          if (value) {
+            onChange(` ${value}`);
+          }
+        }}
+      >
         <ComboboxInput
           as={Input}
           id={id}
