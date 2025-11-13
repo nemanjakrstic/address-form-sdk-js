@@ -25,6 +25,8 @@ describe("AddressFormContext", () => {
       setMapViewState: vi.fn(),
       isAutofill: false,
       setIsAutofill: vi.fn(),
+      typeaheadApiName: "autocomplete",
+      setTypeaheadApiName: vi.fn(),
     };
 
     let contextValue: AddressFormContextType | undefined;

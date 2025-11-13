@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, fireEvent } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
+import { useContext } from "react";
+import { describe, expect, it, vi } from "vitest";
+import { renderWithProvider } from "../../test/utils";
 import { AddressForm } from "./AddressForm";
 import { AddressFormContext, AddressFormContextType } from "./AddressFormContext";
-import { useContext } from "react";
 
 const mockContextValue: AddressFormContextType = {
   apiKey: "test-key",
@@ -12,10 +13,12 @@ const mockContextValue: AddressFormContextType = {
   setMapViewState: vi.fn(),
   isAutofill: false,
   setIsAutofill: vi.fn(),
+  typeaheadApiName: "autocomplete",
+  setTypeaheadApiName: vi.fn(),
 };
 
 const renderWithContext = (ui: React.ReactElement) => {
-  return render(<AddressFormContext.Provider value={mockContextValue}>{ui}</AddressFormContext.Provider>);
+  return renderWithProvider(<AddressFormContext.Provider value={mockContextValue}>{ui}</AddressFormContext.Provider>);
 };
 
 describe("AddressForm", () => {
@@ -63,7 +66,7 @@ describe("AddressForm", () => {
   });
 
   it("resets form data when Reset button is clicked", () => {
-    const { getByLabelText, getByRole } = render(
+    const { getByLabelText, getByRole } = renderWithProvider(
       <AddressForm apiKey="test" region="us-east-1">
         <input data-type="address-form" name="addressLineTwo" />
         <input data-type="address-form" name="city" />

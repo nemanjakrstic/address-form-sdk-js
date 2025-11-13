@@ -67,6 +67,9 @@ export const AddressFormAutofillHandler = ({ form }: AddressFormAutofillHandlerP
   return null;
 };
 
+/**
+ * Builds a comma-separated query string from autofill form values
+ */
 const buildQuery = (values: AutofillValues): string => {
   return [
     getValue(values, "addressLineOne"),
@@ -79,6 +82,9 @@ const buildQuery = (values: AutofillValues): string => {
     .join(", ");
 };
 
+/**
+ * Extracts and trims a field value from autofill values
+ */
 const getValue = (values: AutofillValues, field: Field) => {
   if (field in values) {
     const value = values[field].trim();
@@ -89,6 +95,9 @@ const getValue = (values: AutofillValues, field: Field) => {
   }
 };
 
+/**
+ * Retrieves place ID using autocomplete or suggest API
+ */
 const getPlaceId = async (
   queryClient: QueryClient,
   client: GeoPlacesClient,
